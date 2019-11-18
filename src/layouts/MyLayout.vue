@@ -22,7 +22,7 @@
       :breakpoint="768"
     >
       <q-list>
-        <q-item-label header>Navigation</q-item-label>
+        <q-item-label header>Menu</q-item-label>
         <q-item v-for="nav in navs" :key="nav.id" clickable :to="nav.to" exact>
           <q-item-section avatar>
             <q-icon :name="nav.icon" />

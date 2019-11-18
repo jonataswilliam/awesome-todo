@@ -12,14 +12,15 @@
  */
 
 const
+  functions = require('firebase-functions'),
   express = require('express'),
   compression = require('compression')
 
 const
   ssr = require('../ssr'),
   extension = require('./extension'),
-  app = express(),
-  port = process.env.PORT || 3000
+  app = express()
+  // port = process.env.PORT || 3000
 
 const serve = (path, cache) => express.static(ssr.resolveWWW(path), {
   maxAge: cache ? 1000 * 60 * 60 * 24 * 30 : 0
@@ -37,7 +38,7 @@ if (ssr.settings.pwa) {
 app.use('/', serve('.', true))
 
 // we extend the custom common dev & prod parts here
-extension.extendApp({ app, ssr })
+extension.extendApp({ app })
 
 // this should be last get(), rendering with SSR
 app.get('*', (req, res) => {
@@ -77,11 +78,9 @@ app.get('*', (req, res) => {
     if (err) {
       if (err.url) {
         res.redirect(err.url)
-      }
-      else if (err.code === 404) {
+      } else if (err.code === 404) {
         res.status(404).send('404 | Page Not Found')
-      }
-      else {
+      } else {
         // Render Error Page or Redirect
         res.status(500).send('500 | Internal Server Error')
         if (ssr.settings.debug) {
@@ -90,13 +89,14 @@ app.get('*', (req, res) => {
           console.error(err.stack)
         }
       }
-    }
-    else {
+    } else {
       res.send(html)
     }
   })
 })
 
-app.listen(port, () => {
-  console.log(`Server listening at port ${port}`)
-})
+// app.listen(port, () => {
+//   console.log(`Server listening at port ${port}`)
+// })
+
+exports.ssrapp = functions.https.onRequest(app)
